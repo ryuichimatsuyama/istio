@@ -176,3 +176,119 @@ output "database_security_group_owner_id" {
 output "database_security_group_name" {
   value = module.vpc.database_security_group_name
 }
+
+
+########################################
+# EKS
+########################################
+## EKS ##
+output "eks_cluster_name" {
+  description = "The name of the EKS cluster."
+  value       = module.eks.cluster_name
+}
+
+output "eks_cluster_id" {
+  description = "The id of the EKS cluster."
+  value       = module.eks.cluster_id
+}
+
+output "eks_cluster_arn" {
+  description = "The Amazon Resource Name (ARN) of the cluster."
+  value       = module.eks.cluster_arn
+}
+
+output "eks_cluster_certificate_authority_data" {
+  description = "Nested attribute containing certificate-authority-data for your cluster. This is the base64 encoded certificate data required to communicate with your cluster."
+  value       = module.eks.cluster_certificate_authority_data
+}
+
+output "eks_cluster_endpoint" {
+  description = "The endpoint for your EKS Kubernetes API."
+  value       = module.eks.cluster_endpoint
+}
+
+output "eks_cluster_oidc_issuer_url" {
+  description = "The URL on the EKS cluster OIDC Issuer"
+  value       = module.eks.cluster_oidc_issuer_url
+}
+
+output "eks_cluster_version" {
+  description = "The Kubernetes server version for the EKS cluster."
+  value       = module.eks.cluster_version
+}
+
+################################################################################
+# Cluster Security Group
+################################################################################
+output "eks_cluster_security_group_arn" {
+  description = "Amazon Resource Name (ARN) of the cluster security group"
+  value       = module.eks.cluster_security_group_arn
+}
+
+output "eks_cluster_security_group_id" {
+  description = "Cluster security group that was created by Amazon EKS for the cluster. Managed node groups use this security group for control-plane-to-data-plane communication. Referred to as 'Cluster security group' in the EKS console"
+  value       = module.eks.cluster_primary_security_group_id
+}
+
+################################################################################
+# Node Security Group
+################################################################################
+output "eks_node_security_group_arn" {
+  description = "Amazon Resource Name (ARN) of the node shared security group"
+  value       = module.eks.node_security_group_arn
+}
+output "eks_node_security_group_id" {
+  description = "ID of the node shared security group"
+  value       = module.eks.node_security_group_id
+}
+
+################################################################################
+# IRSA
+################################################################################
+output "eks_oidc_provider" {
+  description = "The OpenID Connect identity provider (issuer URL without leading `https://`)"
+  value       = module.eks.oidc_provider
+}
+output "eks_oidc_provider_arn" {
+  description = "The ARN of the OIDC Provider if `enable_irsa = true`"
+  value       = module.eks.oidc_provider_arn
+}
+
+################################################################################
+# IAM Role
+################################################################################
+output "eks_cluster_iam_role_name" {
+  description = "IAM role name of the EKS cluster."
+  value       = module.eks.cluster_iam_role_name
+}
+
+output "eks_cluster_iam_role_arn" {
+  description = "IAM role ARN of the EKS cluster."
+  value       = module.eks.cluster_iam_role_arn
+}
+
+################################################################################
+# CloudWatch Log Group
+################################################################################
+output "eks_cloudwatch_log_group_name" {
+  description = "Name of cloudwatch log group created"
+  value       = module.eks.cloudwatch_log_group_name
+}
+
+output "cloudwatch_log_group_arn" {
+  description = "Name of cloudwatch log group created"
+  value       = module.eks.cloudwatch_log_group_arn
+}
+
+################################################################################
+# Self Managed Node Group
+################################################################################
+output "eks_self_managed_node_groups" {
+  description = "Map of attribute maps for all self managed node groups created"
+  value       = module.eks.self_managed_node_groups
+}
+
+output "eks_self_managed_node_groups_autoscaling_group_names" {
+  description = "List of the autoscaling group names created by self-managed node groups"
+  value       = module.eks.self_managed_node_groups_autoscaling_group_names
+}

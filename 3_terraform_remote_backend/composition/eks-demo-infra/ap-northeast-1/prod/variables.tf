@@ -11,6 +11,10 @@ variable "region" {
   type = string
 }
 
+variable "account_id" {
+  type = string
+}
+
 variable "role_name" {
   type = string
 }
@@ -106,4 +110,68 @@ variable "databse_computed_ingress_with_eks_worker_source_security_group_ids" {
     description              = string
   }))
   default = []
+}
+
+
+########################################
+# EKS
+########################################
+## EKS ##
+variable "is_disaster_recovery" {
+  default = false
+}
+variable "cluster_version" {
+  description = "Kubernetes version to use for the EKS cluster."
+  type        = string
+}
+variable "cluster_endpoint_public_access" {
+  description = "Indicates whether or not the Amazon EKS public API server endpoint is enabled"
+}
+
+variable "self_managed_node_groups" {
+  description = "Map of self-managed node group definitions to create"
+  type        = any
+  default     = {}
+}
+
+variable "eks_managed_node_groups" {
+  description = "Map of EKS managed node group definitions to create"
+  type        = any
+  default     = {}
+}
+
+variable "manage_aws_auth_configmap" {
+  description = "Determines whether to manage the aws-auth configmap"
+  type        = bool
+  default     = false
+}
+variable "create_aws_auth_configmap" {
+  description = "Determines whether to create the aws-auth configmap. NOTE - this is only intended for scenarios where the configmap does not exist (i.e. - when using only self-managed node groups). Most users should use `manage_aws_auth_configmap`"
+  type        = bool
+  default     = false
+}
+
+variable "authenticate_using_role" {
+  description = "if set to true, AWS IAM Authenticator will use IAM role specified in role_name to authenticate to a cluster"
+}
+
+variable "authenticate_using_aws_profile" {
+  description = "if set to true, AWS IAM Authenticator will use AWS Profile name specified in profile_name to authenticate to a cluster instead of access key and secret access key"
+}
+
+variable "aws_auth_roles" {
+  description = "List of role maps to add to the aws-auth configmap"
+  type        = list(any)
+  default     = []
+}
+
+variable "aws_auth_users" {
+  description = "List of user maps to add to the aws-auth configmap"
+  type        = list(any)
+  default     = []
+}
+
+variable "enable_irsa" {
+  description = "Whether to create OpenID Connect Provider for EKS to enable IRSA	"
+  default     = false
 }

@@ -37,3 +37,38 @@ module "vpc" {
   tags     = local.vpc_tags
   region   = var.region
 }
+
+########################################
+# EKS
+########################################
+module "eks" {
+  source = "../../../../infrastructure_modules/eks"
+
+  ## EKS ##
+  create_eks                     = var.create_eks
+  cluster_version                = var.cluster_version
+  cluster_name                   = local.cluster_name
+  cluster_endpoint_public_access = var.cluster_endpoint_public_access
+  vpc_id                         = module.vpc.vpc_id
+  subnets                        = module.vpc.private_subnets
+
+  # note: either pass worker_groups or node_groups
+  # this is for (EKSCTL API) unmanaged node group
+  self_managed_node_groups = var.self_managed_node_groups
+
+  # this is for (EKS API) managed node group
+  eks_managed_node_groups = var.eks_managed_node_groups
+
+  manage_aws_auth_configmap = var.manage_aws_auth_configmap
+  create_aws_auth_configmap = var.create_aws_auth_configmap
+  # add roles that can access K8s cluster
+  aws_auth_roles = local.aws_auth_roles
+  # add IAM users who can access K8s cluster
+  aws_auth_users = var.aws_auth_users
+
+  ## Common tag metadata ##
+  env      = var.env
+  app_name = var.app_name
+  tags     = local.eks_tags
+  region   = var.region
+}
