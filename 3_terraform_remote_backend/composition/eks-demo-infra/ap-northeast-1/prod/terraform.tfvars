@@ -113,3 +113,5 @@ self_managed_node_groups = {
 
 manage_aws_auth_configmap = true
 create_aws_auth_configmap = true
+
+enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]

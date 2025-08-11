@@ -15,7 +15,7 @@ module "eks_cluster" {
   kubernetes_version                = var.cluster_version
   endpoint_public_access = var.cluster_endpoint_public_access
 
-  enabled_log_types              = var.enabled_cluster_log_types
+  enabled_cluster_log_types = var.enabled_cluster_log_types
   cloudwatch_log_group_retention_in_days = var.cluster_log_retention_in_days
 
   # WARNING: changing this will force recreating an entire EKS cluster!!!

@@ -41,7 +41,7 @@ resource "aws_eks_cluster" "this" {
   name                          = var.name
   role_arn                      = local.role_arn
   version                       = var.kubernetes_version
-  enabled_cluster_log_types     = var.enabled_log_types
+  enabled_cluster_log_types     = var.enabled_cluster_log_types
   bootstrap_self_managed_addons = false
   force_update_version          = var.force_update_version
 

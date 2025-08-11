@@ -66,6 +66,8 @@ module "eks" {
   # add IAM users who can access K8s cluster
   aws_auth_users = var.aws_auth_users
 
+  enabled_cluster_log_types = var.enabled_cluster_log_types
+
   ## Common tag metadata ##
   env      = var.env
   app_name = var.app_name
