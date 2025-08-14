@@ -115,3 +115,15 @@ manage_aws_auth_configmap = true
 create_aws_auth_configmap = true
 
 enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+
+## IRSA (IAM role for service account) ##
+cluster_autoscaler_service_account_namespace = "kube-system"
+cluster_autoscaler_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler"
+
+addons = {
+    coredns                = {}
+    kube-proxy             = {}
+    vpc-cni                = {
+      before_compute = true
+    }
+  }

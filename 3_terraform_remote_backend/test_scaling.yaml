@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-scaling
+  namespace: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-scaling
+  template:
+    metadata:
+      labels:
+        service: test-scaling
+        app: test-scaling
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: "env" # match with node's label
+                operator: In
+                values:
+                - "prod"
+              - key: "unmanaged-node" # match with node's label
+                operator: In
+                values:
+                - "true"
+      tolerations: # match with node's taint
+      - key: "prod-only"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      containers:
+      - image: nginx
+        name: test-scaling
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 500m
+            memory: 512Mi

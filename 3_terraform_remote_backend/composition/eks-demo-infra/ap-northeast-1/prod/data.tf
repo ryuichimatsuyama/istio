@@ -46,6 +46,8 @@ locals {
   eks_tags = {
     Environment = var.env
     Application = var.app_name
+    "kubernetes.io/cluster/${local.cluster_name}"     = "shared"
+    "k8s.io/cluster-autoscaler/${local.cluster_name}" = "true"
   }
 
   # specify AWS Profile if you want kubectl to use a named profile to authenticate instead of access key and secret access key

@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-irsa
+  namespace: kube-system # <----- namespace must be kube-system as defined in terraform.tfvars
+spec:
+  # affinity:
+  #   nodeAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #       - matchExpressions:
+  #         - key: "env" # match with node's label
+  #           operator: In
+  #           values:
+  #           - "staging"
+  #         - key: "unmanaged-node" # match with node's label
+  #           operator: In
+  #           values:
+  #           - "true"
+  # tolerations: # match with node's taint
+  # - key: "staging-only"
+  #   operator: "Equal"
+  #   value: "true"
+  #   effect: "PreferNoSchedule"
+  serviceAccountName: cluster-autoscaler-aws-cluster-autoscaler # <----- use this SA name
+  tolerations:
+  - key: "prod-only"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+  containers:
+  - image: amazon/aws-cli
+    name: test-irsa
+    command:
+    - sleep
+    - "1500"

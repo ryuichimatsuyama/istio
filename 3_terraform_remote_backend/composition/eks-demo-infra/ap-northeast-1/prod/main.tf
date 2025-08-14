@@ -68,6 +68,12 @@ module "eks" {
 
   enabled_cluster_log_types = var.enabled_cluster_log_types
 
+  ## IRSA (IAM role for service account) ##
+  cluster_autoscaler_service_account_namespace = var.cluster_autoscaler_service_account_namespace
+  cluster_autoscaler_service_account_name      = var.cluster_autoscaler_service_account_name
+
+  addons = var.addons
+
   ## Common tag metadata ##
   env      = var.env
   app_name = var.app_name

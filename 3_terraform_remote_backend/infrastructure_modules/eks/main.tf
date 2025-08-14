@@ -74,6 +74,29 @@ module "eks_cluster" {
   }
 
   tags = var.tags
+
+  addons = var.addons
+}
+
+# IRSA ##
+module "cluster_autoscaler_iam_assumable_role" {
+  source = "../../resource_modules/identity/iam/iam-assumable-role-with-oidc"
+
+  create_role                   = var.create_eks ? true : false
+  role_name                     = local.cluster_autoscaler_iam_role_name
+  provider_url                  = replace(module.eks_cluster.cluster_oidc_issuer_url, "https://", "")
+  role_policy_arns              = [module.cluster_autoscaler_iam_policy.arn]
+  oidc_fully_qualified_subjects = ["system:serviceaccount:${var.cluster_autoscaler_service_account_namespace}:${var.cluster_autoscaler_service_account_name}"] # <------- IRSA for Cluster Autoscaler pod by specifying namespace and service account 
+}
+
+module "cluster_autoscaler_iam_policy" {
+  source = "../../resource_modules/identity/iam/iam-policy"
+
+  create_policy = var.create_eks ? true : false
+  description   = local.cluster_autoscaler_iam_policy_description
+  name          = local.cluster_autoscaler_iam_policy_name
+  path          = local.cluster_autoscaler_iam_policy_path
+  policy        = data.aws_iam_policy_document.cluster_autoscaler.json
 }
 
 ########################################
