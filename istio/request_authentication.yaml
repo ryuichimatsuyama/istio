@@ -1,0 +1,12 @@
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-example
+  namespace: istio-system # apply the policy to the namespace of the workload it selects
+spec:
+  selector:
+    matchLabels:
+      istio: ingressgateway
+  jwtRules:
+  - issuer: testing@secure.istio.io
+    jwksUri: https://raw.githubusercontent.com/istio/istio/release-1.6/security/tools/jwt/samples/jwks.json

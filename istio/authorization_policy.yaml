@@ -1,0 +1,14 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: frontend-ingress
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      istio: ingressgateway
+  action: DENY # reject requests with matching with rules below
+  rules:
+  - from:
+    - source:
+        notRequestPrincipals: ["*"] # <---- if request principals (valid JWT) not available in header. Ref: https://istio.io/latest/docs/tasks/security/authentication/authn-policy/#require-a-valid-token
