@@ -158,3 +158,11 @@ variable "addons" {
   }))
   default = null
 }
+
+## EFS SG ##
+variable "vpc_cidr_block" {}
+
+## EFS ##
+variable efs_mount_target_subnet_ids {
+  type = list
+}

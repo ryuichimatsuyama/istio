@@ -79,4 +79,10 @@ module "eks" {
   app_name = var.app_name
   tags     = local.eks_tags
   region   = var.region
+
+  ## EFS SG ##
+  vpc_cidr_block = module.vpc.vpc_cidr_block
+
+  ## EFS ## 
+  efs_mount_target_subnet_ids = module.vpc.private_subnets
 }

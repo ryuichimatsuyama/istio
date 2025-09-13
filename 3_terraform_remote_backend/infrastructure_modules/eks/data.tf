@@ -12,6 +12,13 @@ locals {
   cluster_autoscaler_iam_policy_name        = "${local.cluster_autoscaler_iam_role_name}Policy"
   cluster_autoscaler_iam_policy_path        = "/"
 
+  ## self_managed_node_groups ##
+  self_managed_node_groups = {
+    for k, v in var.self_managed_node_groups :
+    k => merge(v, { key_name = module.key_pair.key_name })
+  }
+
+
   ########################################
   ##  KMS for K8s secret's DEK (data encryption key) encryption
   ########################################
@@ -24,6 +31,36 @@ locals {
       "Name" = local.k8s_secret_kms_key_name
     })
   )
+
+  ## EFS SG ##
+  efs_security_group_name                         = "scg-${var.region_tag[var.region]}-${var.env}-efs"
+  efs_security_group_description                  = "Security group for EFS"
+  efs_ingress_with_cidr_blocks_local              = []
+  efs_ingress_with_cidr_blocks                    = []
+  efs_number_of_computed_ingress_with_cidr_blocks = 1
+  efs_computed_ingress_with_cidr_blocks = [
+    {
+      rule        = "nfs-tcp"
+      cidr_blocks = var.vpc_cidr_block
+      description = "Allow NFS 2049 from within the VPC" # <---EFSが使うNFSのポート2049を開ける
+    },
+  ]
+  efs_computed_ingress_with_source_security_group_count = 1
+  efs_computed_ingress_with_source_security_group_id = [
+    {
+      rule                     = "nfs-tcp"
+      source_security_group_id = module.eks_cluster.node_security_group_id # <---EKS Worker nodeからのEFSアクセスを許可
+      description              = "Allow NFS 2049 from EKS worker nodes"
+    },
+  ]
+  efs_security_group_tags = merge(
+    var.tags,
+    {Name = local.efs_security_group_name}
+  )
+
+  ## EFS ##
+  efs_encrypted = true
+  efs_tags      = merge(var.tags, {Name = "efs-${var.region_tag[var.region]}-${var.app_name}-${var.env}"})
 }
 
 # current account ID

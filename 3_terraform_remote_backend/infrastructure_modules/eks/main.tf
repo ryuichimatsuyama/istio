@@ -30,7 +30,7 @@ module "eks_cluster" {
 
   # Self Managed Node Group(s)
   # self_managed_node_groups takes precedence to self_managed_node_group_defaults
-  self_managed_node_groups = var.self_managed_node_groups
+  self_managed_node_groups = local.self_managed_node_groups
 
   # Extend node-to-node security group rules. Ref: https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/examples/self_managed_node_group/main.tf#L78
   # WARNING: need this for metrics-server to work, asn well as istio ingress/egress's readiness to work at http://:15021/healthz/ready. Ref: https://github.com/kubernetes-sigs/metrics-server/issues/1024#issuecomment-1124870217
@@ -111,4 +111,34 @@ module "k8s_secret_kms_key" {
   tags                    = local.k8s_secret_kms_key_tags
   policy                  = data.aws_iam_policy_document.k8s_api_server_decryption.json
   enable_key_rotation     = true
+}
+
+module "efs_security_group" {
+  source = "../../resource_modules/compute/security_group" # <----- SGモデュールを再利用
+
+  name        = local.efs_security_group_name
+  description = local.efs_security_group_description
+  vpc_id      = var.vpc_id
+
+  ingress_with_cidr_blocks                                 = local.efs_ingress_with_cidr_blocks
+  computed_ingress_with_cidr_blocks                        = local.efs_computed_ingress_with_cidr_blocks
+  number_of_computed_ingress_with_cidr_blocks              = local.efs_number_of_computed_ingress_with_cidr_blocks
+  computed_ingress_with_source_security_group_id           = local.efs_computed_ingress_with_source_security_group_id
+  number_of_computed_ingress_with_source_security_group_id = local.efs_computed_ingress_with_source_security_group_count
+
+  egress_rules = ["all-all"]
+
+  tags = local.efs_security_group_tags
+}
+
+module "efs" {
+  source = "../../resource_modules/storage/efs"
+
+  ## EFS FILE SYSTEM ## 
+  encrypted = local.efs_encrypted # <----EFSのデータを暗号化するか
+  tags      = local.efs_tags
+
+  ## EFS MOUNT TARGET ## 
+  mount_target_subnet_ids = var.efs_mount_target_subnet_ids  # <----EFSをどのSubnet内に作成するか（Private subnetがベスト）
+  security_group_ids      = [module.efs_security_group.this_security_group_id] # <----EFSに関連づけるSGのリスト
 }
