@@ -15,11 +15,6 @@ locals {
   cluster_autoscaler_iam_policy_name        = "${local.cluster_autoscaler_iam_role_name}Policy"
   cluster_autoscaler_iam_policy_path        = "/"
 
-  ## efs_csi_iam_policy ##
-  efs_csi_iam_policy_description = "EKS efs-csi policy for cluster ${module.eks_cluster.cluster_id}"
-  efs_csi_iam_policy_name        = "${local.efs_irsa_iam_role_name}_Policy"
-  efs_csi_iam_policy_path        = "/"
-
   ## self_managed_node_groups ##
   self_managed_node_groups = {
     for k, v in var.self_managed_node_groups :
@@ -190,48 +185,6 @@ data "aws_iam_policy_document" "k8s_api_server_decryption" {
   }
 }
 
-# ref: https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/examples/irsa/irsa.tf
-data "aws_iam_policy_document" "efs_csi" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "elasticfilesystem:DescribeAccessPoints",
-      "elasticfilesystem:DescribeFileSystems"
-    ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "elasticfilesystem:CreateAccessPoint"
-    ]
-
-    resources = ["*"]
-
-    condition {
-      test     = "StringLike"
-      variable = "aws:RequestTag/efs.csi.aws.com/cluster"
-      values   = ["true"]
-    }
-  }
-
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "elasticfilesystem:DeleteAccessPoint"
-    ]
-
-    resources = ["*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:ResourceTag/efs.csi.aws.com/cluster"
-      values   = ["true"]
-    }
-  }
+data "aws_iam_policy" "efs_csi" {
+  arn = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
 }
