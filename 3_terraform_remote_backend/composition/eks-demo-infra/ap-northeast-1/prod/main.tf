@@ -71,6 +71,8 @@ module "eks" {
   ## IRSA (IAM role for service account) ##
   cluster_autoscaler_service_account_namespace = var.cluster_autoscaler_service_account_namespace
   cluster_autoscaler_service_account_name      = var.cluster_autoscaler_service_account_name
+  efs_irsa_service_account_namespace                = var.efs_irsa_service_account_namespace
+  efs_irsa_service_account_name                     = var.efs_irsa_service_account_name
 
   addons = var.addons
 

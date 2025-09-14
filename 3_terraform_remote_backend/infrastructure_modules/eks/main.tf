@@ -99,6 +99,26 @@ module "cluster_autoscaler_iam_policy" {
   policy        = data.aws_iam_policy_document.cluster_autoscaler.json
 }
 
+module "efs_irsa_iam_assumable_role" {
+  source = "../../resource_modules/identity/iam/iam-assumable-role-with-oidc"
+
+  create_role  = var.create_eks ? true : false
+  role_name    = local.efs_irsa_iam_role_name
+  provider_url = replace(module.eks_cluster.cluster_oidc_issuer_url, "https://", "")
+  role_policy_arns = [module.efs_csi_iam_policy.arn]
+  oidc_fully_qualified_subjects = ["system:serviceaccount:${var.efs_irsa_service_account_namespace}:${var.efs_irsa_service_account_name}"]
+}
+
+module "efs_csi_iam_policy" {
+  source = "../../resource_modules/identity/iam/iam-policy"
+
+  create_policy = var.create_eks ? true : false
+  description   = local.efs_csi_iam_policy_description
+  name          = local.efs_csi_iam_policy_name
+  path          = local.efs_csi_iam_policy_path
+  policy        = data.aws_iam_policy_document.efs_csi.json
+}
+
 ########################################
 ## KMS for K8s secret's DEK (data encryption key) encryption
 ########################################

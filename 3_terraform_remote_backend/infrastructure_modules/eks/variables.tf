@@ -166,3 +166,11 @@ variable "vpc_cidr_block" {}
 variable efs_mount_target_subnet_ids {
   type = list
 }
+
+## IRSA & efs ##
+variable "efs_irsa_service_account_namespace" {
+  description = "EFS CSI Driver K8s namespace under which service account exists"
+}
+variable "efs_irsa_service_account_name" {
+  description = "EFS CSI Driver K8s service account (on behalf of pods) to allow assuming AWS IAM role through OIDC via AWS STS"
+}

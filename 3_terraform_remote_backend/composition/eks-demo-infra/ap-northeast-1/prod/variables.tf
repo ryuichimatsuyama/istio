@@ -189,6 +189,13 @@ variable "cluster_autoscaler_service_account_name" {
   description = "K8s service account (on behalf of pods) to allow assuming AWS IAM role through OIDC via AWS STS"
 }
 
+variable "efs_irsa_service_account_namespace" {
+  description = "EFS CSI Driver K8s namespace under which service account exists"
+}
+variable "efs_irsa_service_account_name" {
+  description = "EFS CSI Driver K8s service account (on behalf of pods) to allow assuming AWS IAM role through OIDC via AWS STS"
+}
+
 variable "addons" {
   description = "Map of cluster addon configurations to enable for the cluster. Addon name can be the map keys or set with `name`"
   type = map(object({
