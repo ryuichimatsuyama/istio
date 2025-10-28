@@ -21,6 +21,15 @@ locals {
     k => merge(v, { key_name = module.key_pair.key_name })
   }
 
+  ## addons ##
+  addons = {
+    for k, v in var.addons :
+    k => (
+      k == "aws-efs-csi-driver" ?
+        merge(v, { service_account_role_arn = module.efs_irsa_iam_assumable_role.iam_role_arn }) :
+        v
+    )
+  }
 
   ########################################
   ##  KMS for K8s secret's DEK (data encryption key) encryption

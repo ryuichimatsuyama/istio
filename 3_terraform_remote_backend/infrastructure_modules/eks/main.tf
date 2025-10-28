@@ -75,7 +75,7 @@ module "eks_cluster" {
 
   tags = var.tags
 
-  addons = var.addons
+  addons = local.addons
 }
 
 # IRSA ##
