@@ -32,7 +32,13 @@ controller:
     # - build-timeout:1.20 # https://plugins.jenkins.io/build-timeout/
   JCasC:
     defaultConfig: false # need to disable this otherwise existing plugins and pipeline jobs won't be loaded and you will face "SEVERE	jenkins.InitReactorRunner$1#onTaskFailed: Failed Loading plugin" and "WARNING	c.c.h.p.folder.AbstractFolder#loadChildren: could not load /var/jenkins_home/jobs/Peerwell-API/branches/feature-health-liveness-probe"
-    
+serviceAccount:
+  create: true # by default it'll create
+  name: jenkins
+  # for Jenkins pod to assume IAM role (IRSA)
+  annotations: 
+    eks.amazonaws.com/role-arn: "arn:aws:iam::038314702298:role/eksctl-eks-apne1-prod-terraform-eks-addon-iam-Role1-EiNa1Y0MEe25" # NOTE: change this to your IAM role ARN
+
 persistence:
   existingClaim: efs-jenkins-claim # <------
   storageClass: efs-sc # <------
