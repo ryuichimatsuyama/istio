@@ -54,6 +54,8 @@ spec:
       K8S_NAMESPACE_STAGING = "staging"
 
       S3_BUCKET = "s3://s3-jenkins-artifacts-038314702298/helm-charts" // <----- change this to your account ID to avoid global name conflict
+
+      BRANCH_NAME = "master"
     }
 
     stages {
@@ -208,5 +210,25 @@ spec:
             } // steps
         } // stage
 
+        stage('Deploy Helm Chart to Staging') {
+          steps {
+              dir("helm-examples") {
+                  container('helm') {
+                      sh '''
+                          pwd
+                          ls
+
+                          cd charts/ && ls -al
+
+                          helm upgrade --atomic --reset-values ${HELM_CHART_NAME} ${HELM_CHART_NAME}/ -n ${K8S_NAMESPACE_STAGING}
+
+                          helm history ${HELM_CHART_NAME} -n ${K8S_NAMESPACE_STAGING}
+
+                          helm test ${HELM_CHART_NAME} -n ${K8S_NAMESPACE_STAGING}
+                      '''
+                  } // container
+              } // dir
+          } // steps
+        } // stage
     } // stages
 } // pipeline
