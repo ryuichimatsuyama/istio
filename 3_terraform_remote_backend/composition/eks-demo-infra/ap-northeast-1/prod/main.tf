@@ -1,90 +1,81 @@
-########################################
-# VPC
-########################################
-module "vpc" {
-  source = "../../../../infrastructure_modules/vpc" # using infra module VPC which acts like a facade to many sub-resources
-
-  name                 = var.app_name
-  cidr                 = var.cidr
-  azs                  = var.azs
-  private_subnets      = var.private_subnets
-  public_subnets       = var.public_subnets
-  database_subnets     = var.database_subnets
-  enable_dns_hostnames = var.enable_dns_hostnames
-  enable_dns_support   = var.enable_dns_support
-  enable_nat_gateway   = var.enable_nat_gateway
-  single_nat_gateway   = var.single_nat_gateway
-
-  ## Public Security Group ##
-  public_ingress_with_cidr_blocks = var.public_ingress_with_cidr_blocks
-
-  ## Private Security Group ##
-  # bastion EC2 not created yet
-  # bastion_sg_id  = module.bastion.security_group_id
-
-  ## Database security group ##
-  # DB Controller EC2 not created yet
-  # databse_computed_ingress_with_db_controller_source_security_group_id = module.db_controller_instance.security_group_id
-  create_eks = var.create_eks
-  # pass EKS worker SG to DB SG after creating EKS module at composition layer
-  databse_computed_ingress_with_eks_worker_source_security_group_ids = local.databse_computed_ingress_with_eks_worker_source_security_group_ids
-
-  # cluster_name = local.cluster_name
-
-  ## Common tag metadata ##
-  env      = var.env
-  app_name = var.app_name
-  tags     = local.vpc_tags
-  region   = var.region
+provider "aws" {
+  region = local.region
 }
 
-########################################
-# EKS
-########################################
+data "aws_availability_zones" "available" {
+  # Exclude local zones
+  filter {
+    name   = "opt-in-status"
+    values = ["opt-in-not-required"]
+  }
+}
+
+locals {
+  name               = "ex-${basename(path.cwd)}"
+  kubernetes_version = "1.33"
+  region             = "ap-northeast-1"
+
+  vpc_cidr = "10.0.0.0/16"
+  azs      = slice(data.aws_availability_zones.available.names, 0, 3)
+
+  tags = {
+    Test       = local.name
+    GithubRepo = "terraform-aws-eks"
+    GithubOrg  = "terraform-aws-modules"
+  }
+}
+
+################################################################################
+# EKS Module
+################################################################################
+
 module "eks" {
-  source = "../../../../infrastructure_modules/eks"
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 21.0"
 
-  ## EKS ##
-  create_eks                     = var.create_eks
-  cluster_version                = var.cluster_version
-  cluster_name                   = local.cluster_name
-  cluster_endpoint_public_access = var.cluster_endpoint_public_access
-  vpc_id                         = module.vpc.vpc_id
-  subnets                        = module.vpc.private_subnets
+  name                   = local.name
+  kubernetes_version     = local.kubernetes_version
+  endpoint_public_access = true
 
-  # note: either pass worker_groups or node_groups
-  # this is for (EKSCTL API) unmanaged node group
-  self_managed_node_groups = var.self_managed_node_groups
+  enable_cluster_creator_admin_permissions = true
 
-  # this is for (EKS API) managed node group
-  eks_managed_node_groups = var.eks_managed_node_groups
+  compute_config = {
+    enabled    = true
+    node_pools = ["general-purpose"]
+  }
 
-  manage_aws_auth_configmap = var.manage_aws_auth_configmap
-  create_aws_auth_configmap = var.create_aws_auth_configmap
-  # add roles that can access K8s cluster
-  aws_auth_roles = local.aws_auth_roles
-  # add IAM users who can access K8s cluster
-  aws_auth_users = var.aws_auth_users
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
 
-  enabled_cluster_log_types = var.enabled_cluster_log_types
+  tags = local.tags
+}
 
-  ## IRSA (IAM role for service account) ##
-  cluster_autoscaler_service_account_namespace = var.cluster_autoscaler_service_account_namespace
-  cluster_autoscaler_service_account_name      = var.cluster_autoscaler_service_account_name
-  efs_irsa_service_account_namespace                = var.efs_irsa_service_account_namespace
-  efs_irsa_service_account_name                     = var.efs_irsa_service_account_name
+################################################################################
+# Supporting Resources
+################################################################################
 
-  addons = var.addons
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 6.0"
 
-  ## Common tag metadata ##
-  env      = var.env
-  app_name = var.app_name
-  tags     = local.eks_tags
-  region   = var.region
+  name = local.name
+  cidr = local.vpc_cidr
 
-  ## EFS SG ##
-  vpc_cidr_block = module.vpc.vpc_cidr_block
+  azs             = local.azs
+  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 4, k)]
+  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 48)]
+  intra_subnets   = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 52)]
 
-  ## EFS ## 
-  efs_mount_target_subnet_ids = module.vpc.private_subnets
+  enable_nat_gateway = true
+  single_nat_gateway = true
+
+  public_subnet_tags = {
+    "kubernetes.io/role/elb" = 1
+  }
+
+  private_subnet_tags = {
+    "kubernetes.io/role/internal-elb" = 1
+  }
+
+  tags = local.tags
 }

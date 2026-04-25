@@ -108,7 +108,7 @@ self_managed_node_groups = {
     # escape double qoute in TF variable to avoid /bin/bash not found error when executing install-linx.sh. Ref: https://discuss.hashicorp.com/t/how-can-i-escape-double-quotes-in-a-variable-value/4697/2
     post_bootstrap_user_data = <<-EOT
     # mount EFS
-    sudo mkdir /mnt/efs; sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-0c95bfffb1f408743.efs.ap-northeast-1.amazonaws.com:/ /mnt/efs; echo 'fs-0c95bfffb1f408743.efs.ap-northeast-1.amazonaws.com:/ /mnt/efs nfs defaults,vers=4.1 0 0' >> /etc/fstab;
+    sudo mkdir /mnt/efs; sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-045a120d9c1ab9aac.efs.ap-northeast-1.amazonaws.com:/ /mnt/efs; echo 'fs-0c95bfffb1f408743.efs.ap-northeast-1.amazonaws.com:/ /mnt/efs nfs defaults,vers=4.1 0 0' >> /etc/fstab;
     EOT
 
     tags = {
