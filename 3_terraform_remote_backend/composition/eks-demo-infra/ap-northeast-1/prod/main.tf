@@ -1,30 +1,3 @@
-provider "aws" {
-  region = local.region
-}
-
-data "aws_availability_zones" "available" {
-  # Exclude local zones
-  filter {
-    name   = "opt-in-status"
-    values = ["opt-in-not-required"]
-  }
-}
-
-locals {
-  name               = "ex-${basename(path.cwd)}"
-  kubernetes_version = "1.33"
-  region             = "ap-northeast-1"
-
-  vpc_cidr = "10.0.0.0/16"
-  azs      = slice(data.aws_availability_zones.available.names, 0, 3)
-
-  tags = {
-    Test       = local.name
-    GithubRepo = "terraform-aws-eks"
-    GithubOrg  = "terraform-aws-modules"
-  }
-}
-
 ################################################################################
 # EKS Module
 ################################################################################
@@ -34,15 +7,12 @@ module "eks" {
   version = "~> 21.0"
 
   name                   = local.name
-  kubernetes_version     = local.kubernetes_version
-  endpoint_public_access = true
+  kubernetes_version     = var.kubernetes_version
+  endpoint_public_access = var.endpoint_public_access
 
-  enable_cluster_creator_admin_permissions = true
+  enable_cluster_creator_admin_permissions = var.enable_cluster_creator_admin_permissions
 
-  compute_config = {
-    enabled    = true
-    node_pools = ["general-purpose"]
-  }
+  compute_config = var.compute_config
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
@@ -59,23 +29,19 @@ module "vpc" {
   version = "~> 6.0"
 
   name = local.name
-  cidr = local.vpc_cidr
+  cidr = var.cidr
 
   azs             = local.azs
-  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 4, k)]
-  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 48)]
-  intra_subnets   = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 52)]
+  private_subnets = [for k, v in local.azs : cidrsubnet(var.cidr, 4, k)]
+  public_subnets  = [for k, v in local.azs : cidrsubnet(var.cidr, 8, k + 48)]
+  intra_subnets   = [for k, v in local.azs : cidrsubnet(var.cidr, 8, k + 52)]
 
-  enable_nat_gateway = true
-  single_nat_gateway = true
+  enable_nat_gateway = var.enable_nat_gateway
+  single_nat_gateway = var.single_nat_gateway
 
-  public_subnet_tags = {
-    "kubernetes.io/role/elb" = 1
-  }
+  public_subnet_tags = var.public_subnet_tags
 
-  private_subnet_tags = {
-    "kubernetes.io/role/internal-elb" = 1
-  }
+  private_subnet_tags = var.private_subnet_tags
 
   tags = local.tags
 }
