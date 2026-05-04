@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: myapps
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - pullRequest:
+      github:
+        # The GitHub organization or user.
+        owner: ryuichimatsuyama
+        # The Github repository
+        repo: microservices-demo
+        # Reference to a Secret containing an access token. (optional)
+        tokenRef:
+          secretName: github-token
+          key: token
+        # labels:
+        # - preview
+      requeueAfterSeconds: 1800
+  template:
+    metadata:
+      name: 'myapp-{{.branch}}-{{.number}}'
+    spec:
+      source:
+        repoURL: 'https://github.com/ryuichimatsuyama/microservices-demo.git'
+        targetRevision: '{{.head_sha}}'
+        path: helm-chart/
+        # helm:
+        #   parameters:
+        #   - name: "images.tag"
+        #     value: "pull-{{.author}}-{{.head_sha}}"
+      project: "default"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
