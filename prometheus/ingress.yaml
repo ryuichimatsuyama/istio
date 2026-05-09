@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prom-ingress
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: api.kk-demo.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-external
+                port:
+                  number: 80

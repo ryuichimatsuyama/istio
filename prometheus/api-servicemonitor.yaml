@@ -1,0 +1,28 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: api-service-monitor
+  labels:
+    app: prometheus
+    release: prometheus
+spec:
+  endpoints:
+    - interval: 30s
+      port: grpc
+      path: /metrics
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - currencyservice
+          - productcatalogservice
+          - checkoutservice
+          - shippingservice
+          - cartservice
+          - redis-cart
+          - emailservice
+          - paymentservice
+          - frontend
+          - recommendationservice
+          - adservice
