@@ -19,7 +19,7 @@ private_subnet_tags = {
 ########################################
 # EKS
 ########################################
-kubernetes_version                = 1.33
+kubernetes_version                = 1.36
 endpoint_public_access = true
 
 enable_cluster_creator_admin_permissions = true
