@@ -1,4 +1,4 @@
-FROM docker:19.03.1
+FROM docker:19.03.15
 RUN apk add --no-cache \
         python3 \
         py3-pip \
