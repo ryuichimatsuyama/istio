@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: microservices-demo
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
 
@@ -22,3 +24,7 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    
+    syncOptions:
+      - CreateNamespace=true
+
