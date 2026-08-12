@@ -7,9 +7,12 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/argoproj-labs/argocd-image-updater.git
-    targetRevision: stable
-    path: config
+    repoURL: https://github.com/argoproj/argo-helm.git
+    chart: argocd-image-updater
+    targetRevision: 2.0.0
+
+    helm:
+      releaseName: ImageUpdater
 
   destination:
     server: https://kubernetes.default.svc
