@@ -12,7 +12,7 @@ spec:
     targetRevision: 1.2.4
 
     helm:
-      releaseName: ImageUpdater
+      releaseName: image-updater
 
   destination:
     server: https://kubernetes.default.svc
