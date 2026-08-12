@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/ryuichimatsuyama/istio.git
-    targetRevision: main
+    targetRevision: HEAD
     path: ./argocd/app-of-apps
   destination:
     server: https://kubernetes.default.svc
