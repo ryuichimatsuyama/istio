@@ -34,4 +34,4 @@ spec:
       project: "default"
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{.number}}"
+        namespace: 'pr{{.number}}'
