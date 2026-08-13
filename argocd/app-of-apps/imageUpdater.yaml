@@ -15,9 +15,7 @@ spec:
       # supported in PR mode and will cause a validation error.
       branch: "main"
       pullRequest:
-        github:
-          labels:
-          - preview
+        github: {}
   applicationRefs:
     - namePattern: "microservices-demo"
       images:
