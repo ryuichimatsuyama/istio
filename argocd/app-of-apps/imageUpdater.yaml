@@ -2,30 +2,32 @@ apiVersion: argocd-image-updater.argoproj.io/v1alpha1
 kind: ImageUpdater
 metadata:
   name: my-pr-image-updater
-  namespace: default
+  namespace: argocd
 spec:
   writeBackConfig:
     # HTTPS PAT or GitHub App credentials are required; SSH is not supported for PR mode.
-    method: "git:secret:default/git-creds"
+    method: "git:secret:git-creds"
     gitConfig:
       repository: "https://github.com/ryuichimatsuyama/microservices-demo.git"
       # Specify only the base branch. The colon "base:target" format is not
       # supported in PR mode and will cause a validation error.
       branch: "main"
       pullRequest:
-        github: {}
+        github:
+          labels:
+          - preview
   applicationRefs:
-    - namePattern: "my-app"
+    - namePattern: "microservices-demo"
       images:
         - alias: "adservice"
-          imageName: "ghcr.io/ryuichimatsuyama/adservice"
+          imageName: "adservice"
           manifestTargets:
             helm:
-              name: "adService.image.repository"
-              tag: "adService.image.tag"
+              name: "images.repository"
+              tag: "images.tag"
           commonUpdateSettings:
             updateStrategy: "newest-build"
       writeBackConfig:
-        method: "git:secret:default/git-creds"
+        method: "git:secret:git-creds"
         gitConfig:
           writeBackTarget: "helmvalues:/helm-chart/values.yaml"
