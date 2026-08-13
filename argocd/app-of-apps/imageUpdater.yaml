@@ -20,7 +20,7 @@ spec:
     - namePattern: "microservices-demo"
       images:
         - alias: "adservice"
-          imageName: "adservice"
+          imageName: "ghcr.io/ryuichimatsuyama/adservice"
           manifestTargets:
             helm:
               name: "images.repository"
