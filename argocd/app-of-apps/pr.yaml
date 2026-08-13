@@ -2,6 +2,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: myapps
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
@@ -16,8 +18,8 @@ spec:
         tokenRef:
           secretName: github-token
           key: token
-        # labels:
-        # - preview
+        labels:
+        - preview
       requeueAfterSeconds: 1800
   template:
     metadata:
