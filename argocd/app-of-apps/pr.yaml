@@ -23,7 +23,7 @@ spec:
       requeueAfterSeconds: 1800
   template:
     metadata:
-      name: 'myapp-{{.branch}}-{{.number}}'
+      name: 'myapp-pr-{{.number}}'
     spec:
       source:
         repoURL: 'https://github.com/ryuichimatsuyama/microservices-demo.git'
