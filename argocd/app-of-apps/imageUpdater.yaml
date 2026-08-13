@@ -3,6 +3,8 @@ kind: ImageUpdater
 metadata:
   name: my-pr-image-updater
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   writeBackConfig:
     # HTTPS PAT or GitHub App credentials are required; SSH is not supported for PR mode.
