@@ -8,7 +8,7 @@ metadata:
 spec:
   writeBackConfig:
     # HTTPS PAT or GitHub App credentials are required; SSH is not supported for PR mode.
-    method: "git:secret:git-creds"
+    method: "git:secret:github-token"
     gitConfig:
       repository: "https://github.com/ryuichimatsuyama/microservices-demo.git"
       # Specify only the base branch. The colon "base:target" format is not
@@ -28,6 +28,6 @@ spec:
           commonUpdateSettings:
             updateStrategy: "newest-build"
       writeBackConfig:
-        method: "git:secret:git-creds"
+        method: "git:secret:github-token"
         gitConfig:
           writeBackTarget: "helmvalues:/helm-chart/values.yaml"
