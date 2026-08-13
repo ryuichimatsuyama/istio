@@ -23,7 +23,6 @@ spec:
           imageName: "ghcr.io/ryuichimatsuyama/adservice"
           manifestTargets:
             helm:
-              name: "images.repository"
               tag: "images.tag"
           commonUpdateSettings:
             updateStrategy: "newest-build"
