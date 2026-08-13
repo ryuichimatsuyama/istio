@@ -13,7 +13,7 @@ spec:
       repository: "https://github.com/ryuichimatsuyama/microservices-demo.git"
       # Specify only the base branch. The colon "base:target" format is not
       # supported in PR mode and will cause a validation error.
-      branch: "main"
+      branch: "trivy"
       pullRequest:
         github: {}
   applicationRefs:
