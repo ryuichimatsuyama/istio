@@ -27,6 +27,86 @@ spec:
               tag: "adService.image.tag"
           commonUpdateSettings:
             updateStrategy: "newest-build"
+        - alias: "cartservice"
+          imageName: "ghcr.io/ryuichimatsuyama/cartservice"
+          manifestTargets:
+            helm:
+              name: "cartService.image.repository"
+              tag: "cartService.image.tag"
+          commonUpdateSettings:
+            updateStrategy: "newest-build"
+        - alias: "checkoutservice"
+          imageName: "ghcr.io/ryuichimatsuyama/checkoutservice"
+          manifestTargets:
+            helm:
+              name: "checkoutService.image.repository"
+              tag: "checkoutService.image.tag"
+          commonUpdateSettings:
+            updateStrategy: "newest-build"
+        - alias: "currencyservice"
+          imageName: "ghcr.io/ryuichimatsuyama/currencyservice"
+          manifestTargets:
+            helm:
+              name: "currencyService.image.repository"
+              tag: "currencyService.image.tag"
+          commonUpdateSettings:
+            updateStrategy: "newest-build"
+        - alias: "emailservice"
+          imageName: "ghcr.io/ryuichimatsuyama/emailservice"
+          manifestTargets:
+            helm:
+              name: "emailService.image.repository"
+              tag: "emailService.image.tag"
+          commonUpdateSettings:
+            updateStrategy: "newest-build"
+        - alias: "frontend"
+          imageName: "ghcr.io/ryuichimatsuyama/frontend"
+          manifestTargets:
+            helm:
+              name: "frontend.image.repository"
+              tag: "frontend.image.tag"
+          commonUpdateSettings:
+            updateStrategy: "newest-build"
+        - alias: "loadgenerator"
+          imageName: "ghcr.io/ryuichimatsuyama/loadgenerator"
+          manifestTargets:
+            helm:
+              name: "loadgenerator.image.repository"
+              tag: "loadgenerator.image.tag"
+          commonUpdateSettings:
+            updateStrategy: "newest-build"
+        - alias: "paymentservice"
+          imageName: "ghcr.io/ryuichimatsuyama/paymentservice"
+          manifestTargets:
+            helm:
+              name: "paymentService.image.repository"
+              tag: "paymentService.image.tag"
+          commonUpdateSettings:
+            updateStrategy: "newest-build"
+        - alias: "productcatalogservice"
+          imageName: "ghcr.io/ryuichimatsuyama/productcatalogservice"
+          manifestTargets:
+            helm:
+              name: "productcatalogService.image.repository"
+              tag: "productcatalogService.image.tag"
+          commonUpdateSettings:
+            updateStrategy: "newest-build"
+        - alias: "recommendationservice"
+          imageName: "ghcr.io/ryuichimatsuyama/recommendationservice"
+          manifestTargets:
+            helm:
+              name: "recommendationService.image.repository"
+              tag: "recommendationService.image.tag"
+          commonUpdateSettings:
+            updateStrategy: "newest-build"
+        - alias: "shippingservice"
+          imageName: "ghcr.io/ryuichimatsuyama/shippingservice"
+          manifestTargets:
+            helm:
+              name: "shippingService.image.repository"
+              tag: "shippingService.image.tag"
+          commonUpdateSettings:
+            updateStrategy: "newest-build"
       writeBackConfig:
         method: "git:secret:argocd/github-token"
         gitConfig:
