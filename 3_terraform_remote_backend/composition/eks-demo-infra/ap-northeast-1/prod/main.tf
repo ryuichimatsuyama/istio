@@ -57,3 +57,39 @@ resource "helm_release" "argocd" {
 
   depends_on = [module.eks]
 }
+
+resource "argocd_application" "app_of_apps" {
+  metadata {
+    name      = "app-of-apps"
+    namespace = "argocd"
+    labels = {
+      "app.kubernetes.io/part-of" = "bootstrap"
+    }
+  }
+
+  spec {
+    project = "default"
+
+    source {
+      repo_url        = "https://github.com/ryuichimatsuyama/istio.git"
+      target_revision = "HEAD"
+      path            = "./argocd/app-of-apps"
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "argocd"
+    }
+
+    sync_policy {
+      automated {
+        prune     = true
+        self_heal = true
+      }
+    }
+  }
+
+  depends_on = [
+    helm_release.argocd
+  ]
+}
