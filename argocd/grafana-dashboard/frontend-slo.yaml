@@ -1,0 +1,41 @@
+apiVersion: sloth.slok.dev/v1
+kind: PrometheusServiceLevel
+metadata:
+  name: frontend-slo
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  service: frontend
+
+  labels:
+    team: platform
+    service: frontend
+
+  slos:
+    - name: availability
+      objective: 99.9
+      description: "Frontend HTTP availability SLO"
+
+      sli:
+        events:
+          errorQuery: |
+            sum(rate(
+              http_server_request_duration_seconds_count{
+                exported_job="frontend",
+                http_response_status_code=~"5.."
+              }[{{.window}}]
+            ))
+          totalQuery: |
+            sum(rate(
+              http_server_request_duration_seconds_count{
+                exported_job="frontend"
+              }[{{.window}}]
+            ))
+
+      alerting:
+        name: FrontendAvailability
+        labels:
+          category: availability
+        annotations:
+          summary: "Frontend availability SLO is being burned"

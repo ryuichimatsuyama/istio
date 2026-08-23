@@ -1,5 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-resources:
-  - frontend-slo-dashboard.yaml
+configMapGenerator:
+  - name: frontend-slo-dashboard
+    namespace: monitoring
+    files:
+      - frontend-slo-dashboard.json
+
+generatorOptions:
+  labels:
+    grafana_dashboard: "1"
