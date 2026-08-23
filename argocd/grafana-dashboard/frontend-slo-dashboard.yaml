@@ -21,7 +21,7 @@ data:
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "percent"
+              "unit": "percentunit"
             },
             "overrides": []
           },
@@ -48,7 +48,7 @@ data:
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "percent"
+              "unit": "percentunit"
             },
             "overrides": []
           },
