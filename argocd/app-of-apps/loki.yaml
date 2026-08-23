@@ -13,6 +13,9 @@ spec:
 
     helm:
       releaseName: loki
+      values: |
+        loki:
+          isDefault: false
 
   destination:
     server: https://kubernetes.default.svc
