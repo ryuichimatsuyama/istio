@@ -14,10 +14,6 @@ spec:
         owner: ryuichimatsuyama
         # The Github repository
         repo: microservices-demo
-        # Reference to a Secret containing an access token. (optional)
-        tokenRef:
-          secretName: github-token
-          key: token
         labels:
         - preview
       requeueAfterSeconds: 1800
