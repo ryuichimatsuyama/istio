@@ -6,30 +6,35 @@ metadata:
   labels:
     release: monitoring
 spec:
-  service: frontend
-
   labels:
-    team: platform
     service: frontend
+    team: platform
+
+  service: frontend
 
   slos:
     - name: availability
       objective: 99.9
-      description: "Frontend HTTP availability SLO"
+      description: Frontend HTTP availability SLO
 
       sli:
         events:
           errorQuery: |
             sum(rate(
-              http_server_request_duration_seconds_count{
-                exported_job="frontend",
-                http_response_status_code=~"5.."
+              istio_requests_total{
+                reporter="destination",
+                destination_workload="frontend",
+                request_protocol="http",
+                response_code=~"5.."
               }[{{.window}}]
             ))
+
           totalQuery: |
             sum(rate(
-              http_server_request_duration_seconds_count{
-                exported_job="frontend"
+              istio_requests_total{
+                reporter="destination",
+                destination_workload="frontend",
+                request_protocol="http"
               }[{{.window}}]
             ))
 
@@ -38,4 +43,4 @@ spec:
         labels:
           category: availability
         annotations:
-          summary: "Frontend availability SLO is being burned"
+          summary: Frontend availability SLO is being burned
