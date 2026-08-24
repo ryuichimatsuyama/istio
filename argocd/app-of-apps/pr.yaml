@@ -2,8 +2,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: myapps
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
@@ -20,6 +18,8 @@ spec:
   template:
     metadata:
       name: 'myapp-pr-{{.number}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
     spec:
       source:
         repoURL: 'https://github.com/ryuichimatsuyama/microservices-demo.git'
