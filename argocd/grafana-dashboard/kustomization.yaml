@@ -5,7 +5,7 @@ configMapGenerator:
   - name: frontend-slo-dashboard
     namespace: monitoring
     files:
-      - frontend-slo-dashboard.json
+      - slo-dashboard.json
 
 generatorOptions:
   labels:
