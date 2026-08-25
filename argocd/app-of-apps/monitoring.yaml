@@ -18,8 +18,30 @@ spec:
       valuesObject:
         grafana:
           enabled: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+        kube-state-metrics:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
         prometheus:
           prometheusSpec:
+            resources:
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              limits:
+                cpu: "1"
+                memory: 2Gi
             additionalScrapeConfigs:
               - job_name: kubernetes-pods-istio
                 kubernetes_sd_configs:

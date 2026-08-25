@@ -16,6 +16,21 @@ spec:
       values: |
         loki:
           isDefault: false
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+        promtail:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
 
   destination:
     server: https://kubernetes.default.svc
