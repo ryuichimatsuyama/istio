@@ -23,6 +23,4 @@ data "kubernetes_secret" "argocd_initial_admin" {
     name      = "argocd-initial-admin-secret"
     namespace = "argocd"
   }
-
-  depends_on = [helm_release.argocd]
 }

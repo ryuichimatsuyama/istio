@@ -54,6 +54,74 @@ resource "helm_release" "argocd" {
   version    = "9.5.15"
   namespace        = "argocd"
   create_namespace = true
+  values = [
+    yamlencode({
+      server = {
+        resources = {
+          requests = {
+            cpu    = "100m"
+            memory = "128Mi"
+          }
+          limits = {
+            cpu    = "500m"
+            memory = "512Mi"
+          }
+        }
+      }
+
+      repoServer = {
+        resources = {
+          requests = {
+            cpu    = "200m"
+            memory = "256Mi"
+          }
+          limits = {
+            cpu    = "500m"
+            memory = "512Mi"
+          }
+        }
+      }
+
+      controller = {
+        resources = {
+          requests = {
+            cpu    = "250m"
+            memory = "512Mi"
+          }
+          limits = {
+            cpu    = "1"
+            memory = "1Gi"
+          }
+        }
+      }
+
+      applicationSet = {
+        resources = {
+          requests = {
+            cpu    = "100m"
+            memory = "128Mi"
+          }
+          limits = {
+            cpu    = "300m"
+            memory = "256Mi"
+          }
+        }
+      }
+
+      redis = {
+        resources = {
+          requests = {
+            cpu    = "50m"
+            memory = "64Mi"
+          }
+          limits = {
+            cpu    = "200m"
+            memory = "256Mi"
+          }
+        }
+      }
+    })
+  ]
 
   depends_on = [module.eks]
 }
@@ -90,6 +158,7 @@ resource "argocd_application" "app_of_apps" {
   }
 
   depends_on = [
-    helm_release.argocd
+    helm_release.argocd,
+    module.eks,
   ]
 }
