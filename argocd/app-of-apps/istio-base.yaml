@@ -11,7 +11,10 @@ spec:
   source:
     repoURL: https://istio-release.storage.googleapis.com/charts
     chart: base
-    targetRevision: 1.27.1
+    targetRevision: 1.30.3
+    helm:
+      values: |
+        defaultRevision: 1-30
 
   destination:
     server: https://kubernetes.default.svc
