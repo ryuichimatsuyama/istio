@@ -16,6 +16,11 @@ spec:
         dashboard:
           create: true
 
+        chaosDaemon:
+          runtime: containerd
+          socketPath: /run/containerd/containerd.sock
+          privileged: true
+
   destination:
     server: https://kubernetes.default.svc
     namespace: chaos-mesh
