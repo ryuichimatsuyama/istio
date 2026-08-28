@@ -1,0 +1,27 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: frontend-to-cartservice-partition
+  namespace: chaos-mesh
+spec:
+  action: partition
+
+  mode: all
+  selector:
+    namespaces:
+      - pr13
+    labelSelectors:
+      app: frontend
+
+  direction: to
+
+  target:
+    mode: one
+    selector:
+      namespaces:
+        - pr13
+      labelSelectors:
+        app: cartservice
+
+  duration: "120s"
+  

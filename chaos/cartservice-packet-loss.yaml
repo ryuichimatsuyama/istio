@@ -1,0 +1,30 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: frontend-to-cartservice-loss
+  namespace: chaos-mesh
+spec:
+  action: loss
+  mode: all
+
+  selector:
+    namespaces:
+      - pr13
+    labelSelectors:
+      app: frontend
+
+  direction: to
+
+  target:
+    mode: one
+    selector:
+      namespaces:
+        - pr13
+      labelSelectors:
+        app: cartservice
+
+  loss:
+    loss: "100"
+    correlation: "100"
+
+  duration: "120s"
