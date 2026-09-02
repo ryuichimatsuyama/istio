@@ -16,6 +16,23 @@ spec:
     helm:
       releaseName: monitoring
       valuesObject:
+        alertmanager:
+          config:
+            route:
+              receiver: default
+              routes:
+                - matchers:
+                    - sloth_severity="page"
+                  receiver: sre-page
+
+                - matchers:
+                    - sloth_severity="ticket"
+                  receiver: sre-ticket
+
+            receivers:
+              - name: default
+              - name: sre-page
+              - name: sre-ticket
         grafana:
           enabled: true
           resources:
