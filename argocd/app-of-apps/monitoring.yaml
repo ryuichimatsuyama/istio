@@ -17,6 +17,12 @@ spec:
       releaseName: monitoring
       valuesObject:
         alertmanager:
+          enabled: true
+
+          alertmanagerSpec:
+            secrets:
+              - pagerduty-alertmanager
+
           config:
             route:
               receiver: default
@@ -31,7 +37,12 @@ spec:
 
             receivers:
               - name: default
+
               - name: sre-page
+                pagerduty_configs:
+                  - routing_key_file: /etc/alertmanager/secrets/pagerduty-alertmanager/routing-key
+                    send_resolved: true
+
               - name: sre-ticket
         grafana:
           enabled: true
