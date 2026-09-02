@@ -47,7 +47,7 @@ spec:
               - name: sre-ticket
                 slack_configs:
                   - api_url_file: /etc/alertmanager/secrets/slack-alertmanager/webhook-url
-                    channel: "#sre-ticket"
+                    channel: "#devopscicd"
                     send_resolved: true
         grafana:
           enabled: true
