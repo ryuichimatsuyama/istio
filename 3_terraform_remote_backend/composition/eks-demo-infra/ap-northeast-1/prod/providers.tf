@@ -45,3 +45,5 @@ provider "argocd" {
     }
   }
 }
+
+provider "pagerduty" {}

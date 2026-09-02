@@ -19,8 +19,13 @@ locals {
 }
 
 data "kubernetes_secret" "argocd_initial_admin" {
+  depends_on = [helm_release.argocd]
   metadata {
     name      = "argocd-initial-admin-secret"
     namespace = "argocd"
   }
+}
+
+data "pagerduty_user" "me" {
+  email = var.pagerduty_user_email
 }

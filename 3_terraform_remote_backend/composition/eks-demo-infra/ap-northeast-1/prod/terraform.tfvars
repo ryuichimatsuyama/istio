@@ -28,3 +28,14 @@ compute_config = {
   enabled    = true
   node_pools = ["general-purpose"]
 }
+
+########################################
+# PagerDuty
+########################################
+service_name          = "SRE Portfolio"
+integration_name      = "Alertmanager Events API v2"
+
+escalation_num_loops       = 1
+escalation_delay_minutes   = 10
+acknowledgement_timeout    = 1800
+auto_resolve_timeout       = 14400

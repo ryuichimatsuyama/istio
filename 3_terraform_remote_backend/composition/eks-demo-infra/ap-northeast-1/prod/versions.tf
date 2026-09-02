@@ -18,5 +18,9 @@ terraform {
       source  = "argoproj-labs/argocd"
       version = "~> 7.15"
     }
+    pagerduty = {
+      source  = "PagerDuty/pagerduty"
+      version = "~> 3.35"
+    }
   }
 }

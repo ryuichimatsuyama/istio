@@ -3164,3 +3164,56 @@ variable "flow_log_cloudwatch_log_group_class" {
   type        = string
   default     = null
 }
+
+variable "pagerduty_user_email" {
+  description = "PagerDuty user email used as the escalation target"
+  type        = string
+}
+
+variable "escalation_policy_name" {
+  description = "PagerDuty escalation policy name"
+  type        = string
+  default     = "SRE Portfolio Escalation Policy"
+}
+
+variable "escalation_num_loops" {
+  description = "Number of times the escalation policy repeats"
+  type        = number
+  default     = 1
+}
+
+variable "escalation_delay_minutes" {
+  description = "Delay before escalating"
+  type        = number
+  default     = 10
+}
+
+variable "service_name" {
+  description = "PagerDuty service name"
+  type        = string
+  default     = "SRE Portfolio"
+}
+
+variable "acknowledgement_timeout" {
+  description = "Seconds before a triggered incident returns after acknowledgement"
+  type        = number
+  default     = 1800
+}
+
+variable "auto_resolve_timeout" {
+  description = "Seconds before an incident is automatically resolved"
+  type        = number
+  default     = 14400
+}
+
+variable "integration_name" {
+  description = "PagerDuty integration name"
+  type        = string
+  default     = "Alertmanager Events API v2"
+}
+
+variable "integration_type" {
+  description = "PagerDuty integration type"
+  type        = string
+  default     = "events_api_v2_inbound_integration"
+}

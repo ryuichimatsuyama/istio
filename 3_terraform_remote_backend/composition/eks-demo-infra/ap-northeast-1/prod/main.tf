@@ -162,3 +162,30 @@ resource "argocd_application" "app_of_apps" {
     module.eks,
   ]
 }
+
+resource "pagerduty_escalation_policy" "sre" {
+  name      = var.escalation_policy_name
+  num_loops = var.escalation_num_loops
+
+  rule {
+    escalation_delay_in_minutes = var.escalation_delay_minutes
+
+    target {
+      type = "user_reference"
+      id   = data.pagerduty_user.me.id
+    }
+  }
+}
+
+resource "pagerduty_service" "sre_portfolio" {
+  name                    = var.service_name
+  escalation_policy       = pagerduty_escalation_policy.sre.id
+  acknowledgement_timeout = var.acknowledgement_timeout
+  auto_resolve_timeout     = var.auto_resolve_timeout
+}
+
+resource "pagerduty_service_integration" "alertmanager" {
+  name    = var.integration_name
+  service = pagerduty_service.sre_portfolio.id
+  type    = var.integration_type
+}
