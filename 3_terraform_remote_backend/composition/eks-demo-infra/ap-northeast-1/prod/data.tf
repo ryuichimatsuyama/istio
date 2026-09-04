@@ -16,6 +16,22 @@ locals {
     GithubRepo = "terraform-aws-eks"
     GithubOrg  = "terraform-aws-modules"
   }
+
+  alertmanager_secrets = {
+    pagerduty = {
+      name = var.pagerduty_secret_name
+      data = {
+        (var.pagerduty_secret_key) = pagerduty_service_integration.alertmanager.integration_key
+      }
+    }
+
+    slack = {
+      name = var.slack_secret_name
+      data = {
+        (var.slack_secret_key) = var.slack_webhook_url
+      }
+    }
+  }
 }
 
 data "kubernetes_secret" "argocd_initial_admin" {

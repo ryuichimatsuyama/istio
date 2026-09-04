@@ -189,3 +189,22 @@ resource "pagerduty_service_integration" "alertmanager" {
   service = pagerduty_service.sre_portfolio.id
   type    = var.integration_type
 }
+
+resource "kubernetes_secret_v1" "alertmanager" {
+  for_each = local.alertmanager_secrets
+
+  metadata {
+    name      = each.value.name
+    namespace = kubernetes_namespace_v1.monitoring.metadata[0].name
+  }
+
+  data = each.value.data
+
+  type = "Opaque"
+}
+
+resource "kubernetes_namespace_v1" "monitoring" {
+  metadata {
+    name = var.monitoring_namespace
+  }
+}

@@ -3217,3 +3217,33 @@ variable "integration_type" {
   type        = string
   default     = "events_api_v2_inbound_integration"
 }
+
+variable "monitoring_namespace" {
+  type    = string
+  default = "monitoring"
+}
+
+variable "pagerduty_secret_name" {
+  type    = string
+  default = "pagerduty-alertmanager"
+}
+
+variable "pagerduty_secret_key" {
+  type    = string
+  default = "routing-key"
+}
+
+variable "slack_secret_name" {
+  type    = string
+  default = "slack-alertmanager"
+}
+
+variable "slack_secret_key" {
+  type    = string
+  default = "webhook-url"
+}
+
+variable "slack_webhook_url" {
+  type      = string
+  sensitive = true
+}
