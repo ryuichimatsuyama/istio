@@ -58,6 +58,25 @@ spec:
                     send_resolved: true
         grafana:
           enabled: true
+          additionalDataSources:
+            - name: Loki
+              uid: loki
+              type: loki
+              access: proxy
+              url: http://loki-gateway
+              editable: false
+              jsonData:
+                derivedFields:
+                  - name: TraceID
+                    matcherRegex: '"trace_id":"([a-f0-9]{32})"'
+                    datasourceUid: jaeger
+                    url: '$${__value.raw}'
+            - name: Jaeger
+              uid: jaeger
+              type: jaeger
+              access: proxy
+              url: http://jaeger:16686
+              editable: false
           resources:
             requests:
               cpu: 100m
