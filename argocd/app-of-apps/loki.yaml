@@ -71,6 +71,9 @@ spec:
         lokiCanary:
           enabled: false
 
+        test:
+          enabled: false
+
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
