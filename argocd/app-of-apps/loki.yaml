@@ -36,6 +36,13 @@ spec:
           storage:
             type: filesystem
 
+          rulerConfig:
+            storage:
+              type: local
+              local:
+                directory: /tmp/loki/rules
+            rule_path: /tmp/loki/rules-temp
+
         singleBinary:
           replicas: 1
 
