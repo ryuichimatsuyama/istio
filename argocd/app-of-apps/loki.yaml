@@ -35,6 +35,9 @@ spec:
 
           storage:
             type: filesystem
+            filesystem:
+              chunks_directory: /tmp/loki/chunks
+              rules_directory: /tmp/loki/rules
 
           rulerConfig:
             storage:
@@ -42,9 +45,18 @@ spec:
               local:
                 directory: /tmp/loki/rules
             rule_path: /tmp/loki/rules-temp
+            wal:
+              dir: /tmp/loki/ruler-wal
+
+          storageConfig:
+            bloom_shipper:
+              working_directory: /tmp/loki/data/bloomshipper
 
         singleBinary:
           replicas: 1
+
+          persistence:
+            enabled: false
 
           resources:
             requests:
@@ -54,19 +66,29 @@ spec:
               cpu: 500m
               memory: 1Gi
 
-          persistence:
-            enabled: false
-
         gateway:
           enabled: true
 
         backend:
           replicas: 0
-
         read:
           replicas: 0
-
         write:
+          replicas: 0
+
+        ingester:
+          replicas: 0
+        querier:
+          replicas: 0
+        queryFrontend:
+          replicas: 0
+        queryScheduler:
+          replicas: 0
+        distributor:
+          replicas: 0
+        compactor:
+          replicas: 0
+        indexGateway:
           replicas: 0
 
         chunksCache:
@@ -80,6 +102,15 @@ spec:
 
         test:
           enabled: false
+
+        bloomPlanner:
+          replicas: 0
+
+        bloomBuilder:
+          replicas: 0
+
+        bloomGateway:
+          replicas: 0
 
   destination:
     server: https://kubernetes.default.svc
