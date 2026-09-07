@@ -77,6 +77,13 @@ spec:
               access: proxy
               url: http://jaeger:16686
               editable: false
+              jsonData:
+                tracesToLogsV2:
+                  datasourceUid: loki
+                  spanStartTimeShift: "-1m"
+                  spanEndTimeShift: "1m"
+                  filterByTraceID: true
+                  filterBySpanID: false
           resources:
             requests:
               cpu: 100m
