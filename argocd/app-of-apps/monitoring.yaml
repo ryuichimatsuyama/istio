@@ -87,6 +87,8 @@ spec:
                   tags:
                     - key: 'k8s.namespace.name'
                       value: 'namespace'
+                    - key: 'service.name'
+                      value: 'app'
           resources:
             requests:
               cpu: 100m
