@@ -109,6 +109,8 @@ spec:
               memory: 256Mi
         prometheus:
           prometheusSpec:
+            enableFeatures:
+              - exemplar-storage
             resources:
               requests:
                 cpu: 500m
