@@ -58,6 +58,11 @@ spec:
                     send_resolved: true
         grafana:
           enabled: true
+          sidecar:
+            datasources:
+              exemplarTraceIdDestinations:
+                datasourceUid: jaeger
+                traceIdLabelName: trace_id
           additionalDataSources:
             - name: Loki
               uid: loki
@@ -87,8 +92,6 @@ spec:
                   tags:
                     - key: 'k8s.namespace.name'
                       value: 'namespace'
-                    - key: 'k8s.pod.name'
-                      value: 'pod'
           resources:
             requests:
               cpu: 100m
