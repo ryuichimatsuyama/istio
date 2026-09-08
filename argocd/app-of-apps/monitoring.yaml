@@ -49,6 +49,9 @@ spec:
               - name: sre-page
                 pagerduty_configs:
                   - routing_key_file: /etc/alertmanager/secrets/pagerduty-alertmanager/routing-key
+                    links:
+                      - href: '{{ .CommonAnnotations.runbook_url }}'
+                        text: Runbook
                     send_resolved: true
 
               - name: sre-ticket
