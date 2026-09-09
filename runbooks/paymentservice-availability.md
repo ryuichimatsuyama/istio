@@ -1,4 +1,3 @@
-
 # Runbook: Paymentservice Availability SLO
 
 ## 概要
@@ -6,19 +5,7 @@
 このRunbookは、`paymentservice` の Availability SLO に対する
 Error Budget Burn Rate Alert が発生した際の調査・復旧手順です。
 
-原則として、一次調査はGrafanaで実施します。
-
-Grafanaでは以下を確認できます。
-
-- SLO / Error Budget
-- Request Rate / Error Ratio / Latency
-- paymentserviceのWorkload Health
-- redis-paymentのDependency Health
-- Trace
-- Logs
-
-Grafanaだけでは原因を特定できない場合に、`kubectl` などを使用して
-追加調査を実施します。
+一次調査はGrafanaを使用し、Metrics・Traces・Logsを相関させて原因を切り分けます。
 
 ---
 
@@ -35,10 +22,8 @@ Grafanaだけでは原因を特定できない場合に、`kubectl` などを使
 
 ## 想定される影響
 
-`paymentservice` のgRPCリクエスト失敗率が上昇している状態です。
-
-Checkout処理から決済処理を実行できず、
-注文処理が失敗する可能性があります。
+`paymentservice` のgRPCリクエスト失敗率が上昇し、
+Checkout処理中の決済が失敗する可能性があります。
 
 主な依存関係:
 
@@ -48,7 +33,7 @@ checkoutservice
 paymentservice
       ↓
 redis-payment
-````
+```
 
 ---
 
@@ -56,8 +41,14 @@ redis-payment
 
 ## 1. Grafana SLO Dashboardを確認
 
-PagerDuty AlertからGrafanaの `availability` Dashboardを開き、
-Serviceを `paymentservice` に設定します。
+PagerDuty IncidentからRunbookを開き、
+Grafanaの `Online Boutique SLO` Dashboardを確認します。
+
+Service:
+
+```text
+paymentservice
+```
 
 Dashboard:
 
@@ -67,11 +58,11 @@ Dashboard:
 
 最初に以下を確認します。
 
-### Availability
+- Availability
+- Error Budget Remaining
+- Burn Rate
 
-AvailabilityがSLO Objectiveを下回っていないか確認します。
-
-### Error Budget Remaining
+Error Budget Remaining:
 
 ```promql
 slo:period_error_budget_remaining:ratio{
@@ -89,9 +80,15 @@ Error Budgetが急速に消費されている場合は、
 
 Grafana Dashboardの `Investigation` Rowを確認します。
 
+確認項目:
+
+- Request Rate
+- gRPC Error Ratio
+- p95 Latency
+
 ### Request Rate
 
-リクエスト量が通常時と比較して急増・急減していないか確認します。
+Alert発生時刻付近でリクエスト量が急増・急減していないか確認します。
 
 ### gRPC Error Ratio
 
@@ -116,17 +113,17 @@ sum(rate(istio_requests_total{
 
 ### p95 Latency
 
-エラー率だけでなく、レイテンシが同時に悪化していないか確認します。
+Alert発生時刻付近でレイテンシが悪化していないか確認します。
 
-判断例:
+### 切り分けの目安
 
-| 状態                         | 疑う対象                    |
-| -------------------------- | ----------------------- |
-| Error Ratioのみ上昇            | アプリケーションエラー、依存サービス      |
-| Latencyのみ上昇                | 高負荷、依存サービス、ネットワーク       |
-| Request Rate急増 + Latency上昇 | 過負荷                     |
-| Error Ratio + Latency上昇    | paymentserviceまたは依存サービス |
-| Request Rate急減             | upstream側の障害も確認         |
+| 状態 | 疑う対象 |
+|---|---|
+| Error Ratioのみ上昇 | Application Error / Dependency |
+| Latencyのみ上昇 | High Load / Dependency / Network |
+| Request Rate急増 + Latency上昇 | Overload |
+| Error Ratio + Latency上昇 | paymentservice / Dependency |
+| Request Rate急減 | Upstream |
 
 ---
 
@@ -134,23 +131,33 @@ sum(rate(istio_requests_total{
 
 Grafana Dashboardの `Workload Health` Rowを確認します。
 
+確認項目:
+
+- Ready Replicas
+- Pod Restarts (1h)
+- CPU Usage
+- Memory Usage
+
 ### Ready Replicas
 
-`100%` になっていることを確認します。
+正常:
 
-100%未満の場合は、paymentservice Podが正常にReadyになっていない可能性があります。
+```text
+100%
+```
+
+100%未満の場合は、`paymentservice` Workloadの異常を疑います。
 
 ### Pod Restarts (1h)
 
-直近1時間にPod Restartが発生していないか確認します。
-
-通常:
+正常:
 
 ```text
 0
 ```
 
-Restartが発生している場合は、Crash / OOM / Probe Failureなどを疑います。
+Alert発生時刻付近でRestartが発生している場合は、
+Application Crash、OOM、Probe Failureなどの可能性があります。
 
 ### CPU Usage
 
@@ -158,9 +165,10 @@ Alert発生時刻付近でCPU Usageが急増していないか確認します。
 
 ### Memory Usage
 
-Alert発生時刻付近でMemory Usageが継続的に増加していないか確認します。
+Alert発生時刻付近でMemory Usageが急増または継続的に増加していないか確認します。
 
-Workload Healthに異常がある場合は、paymentservice自体の問題を優先して調査します。
+Workload Healthに異常がある場合は、
+`paymentservice` 自体の問題を優先して調査します。
 
 ---
 
@@ -168,11 +176,16 @@ Workload Healthに異常がある場合は、paymentservice自体の問題を優
 
 Grafana Dashboardの `Dependency Health` Rowを確認します。
 
-paymentserviceは以下のRedisを利用します。
+`paymentservice` の依存先:
 
 ```text
 redis-payment
 ```
+
+確認項目:
+
+- Redis Ready
+- Redis Restarts (1h)
 
 ### Redis Ready
 
@@ -182,7 +195,7 @@ redis-payment
 100%
 ```
 
-100%未満の場合は、redis-paymentの障害を疑います。
+100%未満の場合は、`redis-payment` の障害を疑います。
 
 ### Redis Restarts (1h)
 
@@ -192,52 +205,52 @@ redis-payment
 0
 ```
 
-Restartが発生している場合は、Alert発生時刻との相関を確認します。
+Restartが発生している場合は、
+PagerDuty Alert発生時刻との相関を確認します。
 
-paymentserviceが正常でもredis-paymentに異常がある場合は、
-依存サービス障害としてRedis側を優先して調査します。
+`paymentservice` が正常で `redis-payment` に異常がある場合は、
+Dependency障害としてRedis側を優先して調査します。
 
 ---
 
 ## 5. Traceを確認
 
-Metricsだけでは原因を特定できない場合はTraceを確認します。
+Metricsだけで原因を特定できない場合はTraceを確認します。
 
-GrafanaのTrace ExemplarsまたはJaegerから、
-Alert発生時刻付近のTraceを調査します。
+GrafanaからAlert発生時刻付近のTraceを調査します。
 
-主に以下を確認します。
+主な確認項目:
 
-* `PaymentService/Charge`
-* Span Status
-* Span Duration
-* upstream service
-* downstream service
-* Error発生箇所
-* Trace ID
+- `PaymentService/Charge`
+- Span Status
+- Span Duration
+- Upstream Service
+- Downstream Service
+- Error発生箇所
+- Trace ID
 
-特定のリクエストだけが失敗しているのか、
-paymentservice全体で問題が発生しているのかを切り分けます。
+特定リクエストのみの障害なのか、
+`paymentservice` 全体の障害なのかを切り分けます。
 
 ---
 
 ## 6. Logsを確認
 
-Traceから関連するLogsへ遷移し、Lokiで調査します。
+Traceに関連するLogsをLokiで確認します。
 
-主に以下を確認します。
+主な確認項目:
 
-* gRPC error
-* timeout
-* Redis connection error
-* lock acquisition failure
-* idempotency error
-* exception
+- gRPC Error
+- Timeout
+- Redis Connection Error
+- Lock Acquisition Failure
+- Idempotency Error
+- Application Exception
 
-Trace IDが取得できている場合は、
+Trace IDが取得できる場合は、
 同一Trace IDのLogsを優先して確認します。
 
-理想的な調査フロー:
+基本的な調査フロー:
 
 ```text
 SLO Alert
@@ -251,82 +264,22 @@ Logs
 
 ---
 
-# 追加調査
-
-## Grafanaで原因を特定できない場合
-
-Grafanaで原因を特定できない場合のみ、
-Kubernetesを直接確認します。
-
-### Pod詳細
-
-```bash
-kubectl get pods -n microservices-demo -l app=paymentservice -o wide
-```
-
-```bash
-kubectl describe pod -n microservices-demo <POD_NAME>
-```
-
-確認項目:
-
-* CrashLoopBackOff
-* OOMKilled
-* Probe Failure
-* Scheduling Failure
-* Image Pull Failure
-
-### Kubernetes Events
-
-```bash
-kubectl get events -n microservices-demo \
-  --sort-by='.lastTimestamp' | tail -50
-```
-
-### Redis接続確認
-
-```bash
-POD=$(kubectl get pod -n microservices-demo \
-  -l app=paymentservice \
-  -o jsonpath='{.items[0].metadata.name}')
-
-kubectl exec -n microservices-demo "$POD" -- \
-  node -e "
-const net=require('net');
-const s=net.connect(6379,'redis-payment',()=>{
-  console.log('CONNECTED');
-  s.end();
-});
-s.on('error',e=>{
-  console.error(e);
-  process.exit(1);
-});
-"
-```
-
-正常:
-
-```text
-CONNECTED
-```
-
----
-
 # Recent Changeの確認
 
-Alert発生直前にDeploymentや設定変更が行われていないか確認します。
+Alert発生直前に変更が行われていないか、
+Argo CD / GitHubのDeployment履歴を確認します。
 
-確認対象:
+主な確認対象:
 
-* Application Image
-* Kubernetes Manifest
-* Helm values
-* ConfigMap / Secret
-* Istio Configuration
-* Redis Configuration
+- Application Image
+- Kubernetes Manifest
+- Helm values
+- Application Configuration
+- Istio Configuration
+- Redis Configuration
 
-必要に応じてArgo CD / GitHubのDeployment履歴と
-Alert発生時刻を比較します。
+Alert発生時刻とDeployment時刻に相関がある場合は、
+直近変更によるRegressionを疑います。
 
 ---
 
@@ -335,50 +288,49 @@ Alert発生時刻を比較します。
 原因が直近のリリースにある場合は、
 GitOpsの手順に従って正常なVersionへRollbackします。
 
-原則として、本番Manifestを恒久的に
+GitをSource of Truthとして復旧し、
+Desired Stateと実環境の整合性を維持します。
 
-```bash
-kubectl edit
-```
+Dependency障害の場合は、
+該当Dependencyの復旧手順またはRunbookに従います。
 
-で変更しません。
-
-GitをSource of Truthとして復旧します。
-
-緊急対応としてKubernetesを直接操作した場合は、
-復旧後にGit上のDesired Stateとの整合性を確認します。
+Platform障害が疑われる場合は、
+Platform担当へエスカレーションします。
 
 ---
 
 # 復旧確認
 
-Mitigation実施後、Grafana SLO Dashboardで以下を確認します。
+Mitigation実施後、Grafana SLO DashboardでSLIの回復を確認します。
 
-* gRPC Error Ratioが正常値へ戻った
-* Availabilityが回復した
-* p95 Latencyが正常化した
-* Ready Replicasが100%
-* Pod Restartが継続していない
-* redis-paymentがReady
-* Error Budgetの急速な消費が停止した
-* Sloth Burn Rate Alertが解消した
+確認項目:
 
-Podが `Running` になっただけではIncidentをCloseしません。
+- gRPC Error Ratioが正常値へ戻った
+- Availabilityが回復した
+- p95 Latencyが正常化した
+- Ready Replicasが100%
+- Pod Restartが継続していない
+- redis-paymentがReady
+- Error Budgetの急速な消費が停止した
+- Sloth Burn Rate Alertが解消した
 
-**SLIが回復していることを確認してからIncidentをCloseします。**
+Workloadが正常に見えるだけではIncidentをCloseしません。
+
+**SLIが回復し、ユーザー影響が解消したことを確認してからIncidentをCloseします。**
 
 ---
 
 # エスカレーション条件
 
-以下の場合は追加のエスカレーションを検討します。
+以下の場合はエスカレーションします。
 
-* Error Budgetの急速な消費が継続
-* PagerDuty Alertが解消しない
-* Rollback後もSLIが回復しない
-* redis-paymentが回復しない
-* 複数Serviceで同時にSLO違反が発生
-* Istio / EKS / NetworkなどPlatform側の障害が疑われる
+- Error Budgetの急速な消費が継続している
+- PagerDuty Alertが解消しない
+- Rollback後もSLIが回復しない
+- redis-paymentが回復しない
+- 複数Serviceで同時にSLO違反が発生している
+- Istio / EKS / NetworkなどPlatform側の障害が疑われる
+- GrafanaのMetrics / Traces / Logsだけでは原因を特定できない
 
 ---
 
@@ -386,15 +338,47 @@ Podが `Running` になっただけではIncidentをCloseしません。
 
 重大なIncidentの場合はPostmortemを作成します。
 
-最低限、以下を記録します。
+記録項目:
 
-* Incident開始時刻
-* Incident終了時刻
-* 影響Service / SLO
-* ユーザー影響
-* Error Budget消費量
-* Root Cause
-* Mitigation
-* Permanent Fix
-* Follow-up Action
-* Owner
+- Incident開始時刻
+- Incident終了時刻
+- 影響Service / SLO
+- ユーザー影響
+- Error Budget消費量
+- Root Cause
+- Mitigation
+- Permanent Fix
+- Follow-up Action
+- Owner
+
+---
+
+# Incident Response Flow
+
+```text
+PagerDuty
+    ↓
+Runbook
+    ↓
+Grafana SLO Dashboard
+    ↓
+┌─────────────────────┐
+│ SLO Overview        │
+│ Investigation       │
+│ Workload Health     │
+│ Dependency Health   │
+└─────────────────────┘
+    ↓
+Metrics
+    ↓
+Trace
+    ↓
+Logs
+    ↓
+Root Cause
+    ↓
+GitOps / Rollback / Escalation
+    ↓
+GrafanaでSLI回復確認
+    ↓
+Incident Close
