@@ -67,14 +67,22 @@ spec:
             jaeger_storage_exporter:
               trace_storage: primary_store
 
-        extraVolumes:
-          - name: badger-data
-            persistentVolumeClaim:
-              claimName: jaeger-badger-data
+        jaeger:
+          extraVolumes:
+            - name: badger-data
+              persistentVolumeClaim:
+                claimName: jaeger-badger-data
 
-        extraVolumeMounts:
-          - name: badger-data
-            mountPath: /badger
+          extraVolumeMounts:
+            - name: badger-data
+              mountPath: /badger
+
+          podSecurityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            fsGroup: 10001
+            fsGroupChangePolicy: OnRootMismatch
 
   destination:
     server: https://kubernetes.default.svc
