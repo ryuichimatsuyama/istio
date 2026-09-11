@@ -3247,3 +3247,31 @@ variable "slack_webhook_url" {
   type      = string
   sensitive = true
 }
+
+variable "cloudflare_account_id" {
+  description = "Cloudflare Account ID"
+  type        = string
+}
+
+variable "domain" {
+  description = "Cloudflare zone domain"
+  type        = string
+}
+
+variable "hostname" {
+  description = "Public hostname"
+  type        = string
+  default     = "shop"
+}
+
+variable "tunnel_name" {
+  description = "Cloudflare Tunnel name"
+  type        = string
+  default     = "eks-online-boutique"
+}
+
+variable "cloudflared_namespace" {
+  description = "Namespace where cloudflared runs"
+  type        = string
+  default     = "cloudflare"
+}

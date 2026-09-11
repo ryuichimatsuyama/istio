@@ -39,3 +39,9 @@ escalation_num_loops       = 1
 escalation_delay_minutes   = 10
 acknowledgement_timeout    = 1800
 auto_resolve_timeout       = 14400
+
+########################################
+# Cloudflare
+########################################
+cloudflare_account_id = "c7179d6456bda4570c3f20eb50ea9c9c"
+domain                = "ryuichi-sre.com"

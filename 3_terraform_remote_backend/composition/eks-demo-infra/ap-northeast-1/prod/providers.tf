@@ -47,3 +47,5 @@ provider "argocd" {
 }
 
 provider "pagerduty" {}
+
+provider "cloudflare" {}

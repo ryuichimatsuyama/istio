@@ -32,6 +32,10 @@ locals {
       }
     }
   }
+
+  zone_id = one(data.cloudflare_zones.this.result).id
+
+  fqdn = "${var.hostname}.${var.domain}"
 }
 
 data "kubernetes_secret" "argocd_initial_admin" {
@@ -44,4 +48,12 @@ data "kubernetes_secret" "argocd_initial_admin" {
 
 data "pagerduty_user" "me" {
   email = var.pagerduty_user_email
+}
+
+data "cloudflare_zones" "this" {
+  name = var.domain
+
+  account = {
+    id = var.cloudflare_account_id
+  }
 }

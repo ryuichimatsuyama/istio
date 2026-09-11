@@ -208,3 +208,70 @@ resource "kubernetes_namespace_v1" "monitoring" {
     name = var.monitoring_namespace
   }
 }
+
+resource "random_bytes" "tunnel_secret" {
+  length = 32
+}
+
+resource "cloudflare_zero_trust_tunnel_cloudflared" "eks" {
+  account_id = var.cloudflare_account_id
+
+  name       = var.tunnel_name
+  config_src = "local"
+
+  tunnel_secret = random_bytes.tunnel_secret.base64
+}
+
+resource "cloudflare_zero_trust_tunnel_cloudflared_config" "eks" {
+  account_id = var.cloudflare_account_id
+  tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.eks.id
+
+  config = {
+    ingress = [
+      {
+        hostname = local.fqdn
+        service: "http://frontend.microservices-demo.svc.cluster.local:80"
+      },
+      {
+        service = "http_status:404"
+      }
+    ]
+  }
+}
+
+resource "cloudflare_dns_record" "shop" {
+  zone_id = local.zone_id
+
+  name = local.fqdn
+
+  type = "CNAME"
+
+  content = "${cloudflare_zero_trust_tunnel_cloudflared.eks.id}.cfargotunnel.com"
+
+  proxied = true
+
+  ttl = 1
+}
+
+resource "kubernetes_namespace_v1" "cloudflare" {
+  metadata {
+    name = var.cloudflared_namespace
+  }
+}
+
+resource "kubernetes_secret_v1" "cloudflared" {
+  metadata {
+    name      = "cloudflared-token"
+    namespace = kubernetes_namespace_v1.cloudflare.metadata[0].name
+  }
+
+  data = {
+    "credentials.json" = jsonencode({
+      AccountTag   = var.cloudflare_account_id
+      TunnelID     = cloudflare_zero_trust_tunnel_cloudflared.eks.id
+      TunnelSecret = random_bytes.tunnel_secret.base64
+    })
+  }
+
+  type = "Opaque"
+}

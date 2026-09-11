@@ -22,5 +22,12 @@ terraform {
       source  = "PagerDuty/pagerduty"
       version = "~> 3.35"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5.24"
+    }
+    random = {
+      source = "hashicorp/random"
+    }
   }
 }
