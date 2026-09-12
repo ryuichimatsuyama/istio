@@ -6,6 +6,7 @@ configMapGenerator:
     namespace: monitoring
     files:
       - slo-dashboard.json
+      - ExternalReliability.json
 
 generatorOptions:
   labels:
