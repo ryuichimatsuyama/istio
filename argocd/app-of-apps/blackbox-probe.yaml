@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/ryuichimatsuyama/istio.git
     targetRevision: HEAD
-    path: blackbox
+    path: argocd/blackbox
 
   destination:
     server: https://kubernetes.default.svc
