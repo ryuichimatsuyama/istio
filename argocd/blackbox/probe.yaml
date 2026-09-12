@@ -3,6 +3,8 @@ kind: Probe
 metadata:
   name: online-boutique-external
   namespace: monitoring
+  labels:
+    release: monitoring
 spec:
   jobName: online-boutique-external
   interval: 30s
