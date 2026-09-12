@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: online-boutique-external
+  namespace: monitoring
+spec:
+  jobName: online-boutique-external
+  interval: 30s
+  module: http_2xx
+
+  prober:
+    url: blackbox-exporter-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+
+  targets:
+    staticConfig:
+      static:
+        - https://shop.ryuichi-sre.com/
