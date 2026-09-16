@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: staging
+  namespace: argocd
+
+spec:
+  generators:
+    - pullRequest:
+        github:
+          owner: ryuichimatsuyama
+          repo: microservices-demo
+          labels:
+            - release
+        requeueAfterSeconds: 60
+
+  template:
+    metadata:
+      name: 'pr-{{number}}'
+
+    spec:
+      project: default
+
+      source:
+        repoURL: https://github.com/ryuichimatsuyama/microservices-demo.git
+
+        targetRevision: '{{head_sha}}'
+
+        path: helm-chart
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'pr-{{number}}'
+
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+
+        syncOptions:
+          - CreateNamespace=true
