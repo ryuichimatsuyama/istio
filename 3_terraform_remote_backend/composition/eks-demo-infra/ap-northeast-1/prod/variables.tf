@@ -3275,3 +3275,25 @@ variable "cloudflared_namespace" {
   type        = string
   default     = "cloudflare"
 }
+
+variable "github_owner" {
+  description = "GitHub repository owner"
+  type        = string
+}
+
+variable "github_repository" {
+  description = "GitHub repository name"
+  type        = string
+}
+
+variable "github_actions_role_name" {
+  description = "IAM role name for PR validation"
+  type        = string
+  default     = "github-actions-pr-validation"
+}
+
+variable "kubernetes_group_name" {
+  description = "Kubernetes group for GitHub Actions"
+  type        = string
+  default     = "github-actions-pr-validation"
+}

@@ -45,3 +45,9 @@ auto_resolve_timeout       = 14400
 ########################################
 cloudflare_account_id = "c7179d6456bda4570c3f20eb50ea9c9c"
 domain                = "ryuichi-sre.com"
+
+########################################
+# GitHub
+########################################
+github_owner      = "ryuichimatsuyama"
+github_repository = "microservices-demo"

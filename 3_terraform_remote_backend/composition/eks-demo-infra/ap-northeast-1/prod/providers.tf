@@ -49,3 +49,7 @@ provider "argocd" {
 provider "pagerduty" {}
 
 provider "cloudflare" {}
+
+provider "github" {
+  owner = var.github_owner
+}

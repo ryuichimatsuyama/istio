@@ -36,6 +36,14 @@ locals {
   zone_id = one(data.cloudflare_zones.this.result).id
 
   fqdn = "${var.hostname}.${var.domain}"
+
+  github_oidc_url = "https://token.actions.githubusercontent.com"
+
+  github_pr_subject = format(
+    "repo:%s/%s:pull_request",
+    var.github_owner,
+    var.github_repository
+  )
 }
 
 data "kubernetes_secret" "argocd_initial_admin" {
@@ -55,5 +63,60 @@ data "cloudflare_zones" "this" {
 
   account = {
     id = var.cloudflare_account_id
+  }
+}
+
+data "tls_certificate" "github_actions" {
+  url = local.github_oidc_url
+}
+
+data "aws_iam_policy_document" "github_actions_pr_validation" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "sts:AssumeRoleWithWebIdentity"
+    ]
+
+    principals {
+      type = "Federated"
+
+      identifiers = [
+        aws_iam_openid_connect_provider.github_actions.arn
+      ]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+
+      values = [
+        "sts.amazonaws.com"
+      ]
+    }
+
+    condition {
+      test     = "StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+
+      values = [
+        local.github_pr_subject
+      ]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "github_actions_pr_validation_eks" {
+  statement {
+    sid    = "DescribeEksCluster"
+    effect = "Allow"
+
+    actions = [
+      "eks:DescribeCluster"
+    ]
+
+    resources = [
+      module.eks.cluster_arn
+    ]
   }
 }

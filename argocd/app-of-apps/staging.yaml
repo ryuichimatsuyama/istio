@@ -27,6 +27,9 @@ spec:
         targetRevision: '{{head_sha}}'
 
         path: helm-chart
+        helm:
+          valueFiles:
+            - environments/values-pr.yaml
 
       destination:
         server: https://kubernetes.default.svc

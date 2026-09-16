@@ -18,6 +18,9 @@ module "eks" {
   subnet_ids = module.vpc.private_subnets
 
   tags = local.tags
+  depends_on = [
+    cloudflare_zero_trust_tunnel_cloudflared.eks
+  ]
 }
 
 ################################################################################
@@ -160,6 +163,7 @@ resource "argocd_application" "app_of_apps" {
   depends_on = [
     helm_release.argocd,
     module.eks,
+    kubernetes_namespace_v1.monitoring
   ]
 }
 
@@ -274,4 +278,64 @@ resource "kubernetes_secret_v1" "cloudflared" {
   }
 
   type = "Opaque"
+}
+
+resource "aws_iam_openid_connect_provider" "github_actions" {
+  url = local.github_oidc_url
+
+  client_id_list = [
+    "sts.amazonaws.com"
+  ]
+
+  thumbprint_list = [
+    data.tls_certificate.github_actions.certificates[0].sha1_fingerprint
+  ]
+}
+
+resource "aws_iam_role" "github_actions_pr_validation" {
+  name = var.github_actions_role_name
+
+  assume_role_policy = data.aws_iam_policy_document.github_actions_pr_validation.json
+
+  tags = {
+    ManagedBy = "Terraform"
+    Purpose   = "GitHubActionsPRValidation"
+  }
+}
+
+resource "aws_eks_access_entry" "github_actions_pr_validation" {
+  cluster_name = module.eks.cluster_name
+
+  principal_arn = aws_iam_role.github_actions_pr_validation.arn
+
+  type = "STANDARD"
+
+  kubernetes_groups = [
+    var.kubernetes_group_name
+  ]
+}
+
+resource "github_actions_variable" "aws_role_arn" {
+  repository    = var.github_repository
+  variable_name = "AWS_GITHUB_ACTIONS_ROLE_ARN"
+  value         = aws_iam_role.github_actions_pr_validation.arn
+}
+
+resource "github_actions_variable" "eks_cluster_name" {
+  repository    = var.github_repository
+  variable_name = "EKS_CLUSTER_NAME"
+  value         = module.eks.cluster_name
+}
+
+resource "github_actions_variable" "aws_region" {
+  repository    = var.github_repository
+  variable_name = "AWS_REGION"
+  value         = var.region
+}
+
+resource "aws_iam_role_policy" "github_actions_pr_validation_eks" {
+  name = "eks-describe-cluster"
+  role = aws_iam_role.github_actions_pr_validation.id
+
+  policy = data.aws_iam_policy_document.github_actions_pr_validation_eks.json
 }
