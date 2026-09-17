@@ -12,7 +12,22 @@ spec:
     targetRevision: 2.41.1
     helm:
       values: |
+        controller:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
         dashboard:
+          resources:
+            requests:
+              cpu: 20m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
           enabled: true
 
   destination:
