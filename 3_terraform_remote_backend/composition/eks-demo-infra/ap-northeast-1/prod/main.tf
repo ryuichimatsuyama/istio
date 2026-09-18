@@ -123,6 +123,32 @@ resource "helm_release" "argocd" {
           }
         }
       }
+
+      dex = {
+        resources = {
+          requests = {
+            cpu    = "20m"
+            memory = "64Mi"
+          }
+          limits = {
+            cpu    = "200m"
+            memory = "256Mi"
+          }
+        }
+      }
+
+      notifications = {
+        resources = {
+          requests = {
+            cpu    = "20m"
+            memory = "64Mi"
+          }
+          limits = {
+            cpu    = "200m"
+            memory = "256Mi"
+          }
+        }
+      }
     })
   ]
 
@@ -338,4 +364,33 @@ resource "aws_iam_role_policy" "github_actions_pr_validation_eks" {
   role = aws_iam_role.github_actions_pr_validation.id
 
   policy = data.aws_iam_policy_document.github_actions_pr_validation_eks.json
+}
+
+resource "github_repository_ruleset" "main" {
+  name        = "main-protection"
+  repository  = var.github_repository
+  target      = "branch"
+  enforcement = "active"
+
+  conditions {
+    ref_name {
+      include = ["~DEFAULT_BRANCH"]
+      exclude = []
+    }
+  }
+
+  rules {
+    pull_request {
+      required_approving_review_count = 0
+    }
+
+    required_status_checks {
+      strict_required_status_checks_policy = false
+
+      required_check {
+        context = "Verify PR Environment"
+        integration_id = 15368
+      }
+    }
+  }
 }
