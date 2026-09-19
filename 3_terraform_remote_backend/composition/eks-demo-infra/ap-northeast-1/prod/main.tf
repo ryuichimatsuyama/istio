@@ -83,6 +83,18 @@ resource "helm_release" "argocd" {
             memory = "512Mi"
           }
         }
+        livenessProbe = {
+          initialDelaySeconds = 10
+          periodSeconds       = 10
+          timeoutSeconds      = 5
+          failureThreshold    = 5
+        }
+        readinessProbe = {
+          initialDelaySeconds = 10
+          periodSeconds       = 10
+          timeoutSeconds      = 5
+          failureThreshold    = 3
+        }
       }
 
       controller = {
@@ -388,7 +400,17 @@ resource "github_repository_ruleset" "main" {
       strict_required_status_checks_policy = false
 
       required_check {
-        context = "Verify PR Environment"
+        context        = "CI Required"
+        integration_id = 15368
+      }
+
+      required_check {
+        context        = "E2E - Purchase Flow"
+        integration_id = 15368
+      }
+
+      required_check {
+        context        = "helm-chart-ci"
         integration_id = 15368
       }
     }
